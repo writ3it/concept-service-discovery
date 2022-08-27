@@ -1,5 +1,5 @@
 # concept-service-registry
-Demo app of Hashicorp Consul usage
+Netflix Eureka demo application.
 
 ![](docs/arch.png)
 
