@@ -1,0 +1,7 @@
+{
+    "name": "writ3it/time_service",
+    "type": "project",
+    "require": {
+        "piwvh/php-eureka": "^0.0.2"
+    }
+}

@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+
+  service_registry:
+    image: springcloud/eureka:latest
+    restart: always
+    ports:
+      - "8761:8761"
+    networks:
+      - internal_network
+    
+  time_service:
+    build: ./services/time_service
+    working_dir: /app
+    environment:
+      EUREKA_URL: "http://service_registry:8761/eureka/"
+      EUREKA_PING_URL: "http://service_registry:8761/"
+      EUREKA_APP_NAME: "time-service"
+      SERVICE_PORT: 8080
+    volumes:
+      - ./services/time_service:/app
+    networks:
+      - internal_network
+    scale: 10
+    depends_on:
+      - service_registry
+    command: >
+        bash -c "
+          export EUREKA_SERVICE_HOSTNAME=`hostname`; \
+          export EUREKA_SERVICE_HOMEPAGE='http://'`hostname`:8080; \
+          export SERVICE_IP=`hostname -i`; \
+          composer install --no-interaction; \
+          php register.php &
+          php -S 0.0.0.0:8080 index.php 
+          "
+
+      
+  time_gateway:
+    build: ./services/time_gateway
+    working_dir: /app
+    environment:
+      EUREKA_URL: "http://service_registry:8761/eureka/"
+      EUREKA_PING_URL: "http://service_registry:8761/"
+      EUREKA_APP_NAME: "time-client"
+      SERVICE_PORT: 8080
+    volumes:
+      - ./services/time_gateway:/app
+    networks:
+      - internal_network
+    depends_on:
+      - service_registry
+      - time_service
+    ports:
+      - '8080:8080'
+    command: >
+        bash -c "
+          export EUREKA_SERVICE_HOSTNAME=`hostname`; \
+          export EUREKA_SERVICE_HOMEPAGE='http://'`hostname`:8080; \
+          export SERVICE_IP=`hostname -i`; \
+          composer install --no-interaction; \
+          php -S 0.0.0.0:8080 index.php
+          "
+
+networks:
+  internal_network:

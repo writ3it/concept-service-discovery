@@ -1,0 +1,7 @@
+{
+    "name": "writ3it/time_client",
+    "type": "project",
+    "require": {
+        "piwvh/php-eureka": "^0.0.2"
+    }
+}
